@@ -461,10 +461,11 @@ class Person:
         # Update Time and Position
         self.time += 1
         
-        # Add more values to the position list
-        try:
+        # Check if Next Position exists
+        if self.time < len(self.xs):
             self.x, self.y = self.xs[self.time], self.ys[self.time]
-        except IndexError:
+        # Calculate More Positions
+        else:
             new_xs, new_ys = self.calc_pos(num=random.choice(range(500, 2500)))
             self.xs = np.concatenate([self.xs, new_xs])
             self.ys = np.concatenate([self.ys, new_ys])
