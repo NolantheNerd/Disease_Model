@@ -1,6 +1,118 @@
 import random
 import numpy as np
 
+class Society:
+    def __init__(self, pop, n_reg, pirt, tf, pi, pac, ttr, incp, dr, psd, quar, qd, cl, vf):
+        """
+        The society class is the top level backend class which the frontend 
+        interfaces with directly. It is responsible for mananging all the 
+        backend Person objects as well as providing a simple set of properties
+        and methods for the frontend to access and display.
+
+        Parameters
+        ----------
+        pop : int
+            The population of the society, the number of Person objects to create.
+            
+        n_reg : int
+            The number of distinct regions in which the Person objects can live.
+            Can be between 1 and 9.
+            
+        pirt : float/int
+            Stands for Percent of population Infected before Restricting Travel.
+            Represents the percentage of the population which needs to be infected
+            before restricting travel between regions.
+            
+        tf : float/int
+            A value representing the frequency with which people travel between
+            regions. Larger values mean people travel more often.
+            
+        pi : float/int
+            The probability of infection. If a healthy person is encountering a
+            sick person, this represents the probability that they will also 
+            become infected.
+            
+        pac : float/int
+            Stands for Percent of infections which are Asymptomatic Cases. 
+            Represents the percent of cases which remain asymptomatic the whole
+            time.
+            
+        ttr : int
+            The Time Taken to Recover in days. 
+            
+        incp : int
+            The incubation period in days (time before asymptomatic cases show 
+            symptoms).
+            
+        dr : float/int
+            The death rate as a percent.
+            
+        psd : float/int
+            The percent of people practicing social distancing.
+            
+        quar : bool
+            Whether or not to quarantine the symptomatic.
+            
+        qd : int
+            The number of days between the emergence of symptoms and quarantining.
+            
+        cl : bool
+            Whether or not there is a central location that people in the region 
+            visit.
+            
+        vf : int
+            The frequency with which people visit the central location.
+
+        Returns
+        -------
+        Society Object
+
+        """
+        
+        # Prepare lists for different types of people
+        self.healthy = []
+        self.asympt = []
+        self.sympt = []
+        self.recovered = []
+        self.dead = []
+        self.traveling = []
+        
+        # Region Definitions
+        self.regions = {1: (((0, 1000), (0, 500)),), 2: (((0, 500), (0, 500)), ((500, 1000), (0, 500))),
+                   3: (((0, 333), (0, 500)), ((333, 667), (0, 500)), ((667, 1000), (0, 500))),
+                   4: (((0, 500), (0, 250)), ((500, 1000), (0, 250)), ((0, 500), (250, 500)), ((500, 1000), (250, 500))),
+                   5: (((0, 500), (0, 250)), ((500, 1000), (0, 250)), ((0, 333), (250, 500)), ((333, 667), (250, 500)), ((667, 1000), (250, 500))),
+                   6: (((0, 333), (0, 250)), ((333, 667), (0, 250)), ((667, 1000), (0, 250)), ((0, 333), (250, 500)), ((333, 667), (250, 500)), ((667, 1000), (250, 500))),
+                   7: (((0, 333), (0, 250)), ((333, 667), (0, 250)), ((667, 1000), (0, 250)), ((0, 250), (250, 500)), ((250, 500), (250, 500)), ((500, 750), (250, 500)), ((750, 1000), (250, 500))),
+                   8: (((0, 250), (0, 250)), ((250, 500), (0, 250)), ((500, 750), (0, 250)), ((750, 1000), (0, 250)), ((0, 250), (250, 500)), ((250, 500), (250, 500)), ((500, 750), (250, 500)), ((750, 1000), (250, 500))),
+                   9: (((0, 333), (0, 167)), ((333, 667), (0, 167)), ((667, 1000), (0, 167)), ((0, 333), (167, 333)), ((333, 667), (167, 333)), ((667, 1000), (167, 333)), ((0, 333), (333, 500)), ((333, 667), (333, 500)), ((667, 1000), (333, 500)))}
+        
+        # Instantiate People
+        self.healthy.append(Person_())
+        
+
+class Person_:
+    def __init__(id_, reg, reg_bd, start_sick=False):
+        # Capture Instantiation Inputs
+        self.id = id_
+        self.reg = reg
+        self.reg
+        
+        # Personal Stats
+        self.healthy = not start_sick
+        self.asympt = start_sick
+        self.sympt = False
+        self.traveling = False
+        self.recovered = False
+        self.dead = False
+        
+        # Location Information
+        self.x = random.uniform(reg_bd[0][0] + 10, reg_bd[0][1] - 10)
+        self.y = random.uniform(reg_bd[1][0] + 10, reg_bd[1][1] - 10)
+        self.vx = 75*(random.random()-0.5)
+        self.vy = 75*(random.random()-0.5)
+        
+
 class Person:
     """
     Person is the class that incapsulates all of the people in the simulation.
