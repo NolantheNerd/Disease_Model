@@ -69,10 +69,13 @@ class Society:
         Society Object
 
         """
+        # Person Object List - This is where all the Person Objects live 
+        # (Start with None so id == list index as id starts at 1)
+        self.people = [None]
         
-        # Prepare lists for different types of people
-        self.healthy = []
-        self.asympt = []
+        # Prepare lists for different types of people - These lists only hold Person IDs
+        self.healthy = list(range(2, pop + 1))
+        self.asympt = [1]
         self.sympt = []
         self.recovered = []
         self.dead = []
@@ -91,7 +94,7 @@ class Society:
         
         # Instantiate People
         # Start with One Asymptomatic Person
-        self.asympt.append(Person_(1, 1, self.regions[n_reg][1], pi, incp, pac, ttr, dr, tf, vf, True))
+        self.people.append(Person_(1, 1, self.regions[n_reg][1], pi, incp, pac, ttr, dr, tf, vf, True))
         
         # Add Remaining Healthy People
         for i in range(2, pop + 1):
@@ -99,7 +102,7 @@ class Society:
             reg = (i-2)%n_reg + 1
             
             # Add Person to Healthy List
-            self.healthy.append(i, reg, self.regions[n_reg][reg], pi, incp, pac, ttr, dr, tf, vf, False)
+            self.people.append(i, reg, self.regions[n_reg][reg], pi, incp, pac, ttr, dr, tf, vf, False)
             
     
     def update_society(self):
