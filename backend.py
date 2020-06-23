@@ -113,31 +113,45 @@ class Society:
         # Get Locations of All Symptomatic and Asymptomatic People
         risk_locations = []
         for person in self.asympt + self.sympt:
-            risk_locations.append((person.x, person.y))
-            
-        # Prepare to Capture All People Who Change State
-        changed_people = []
+            risk_locations.append((person.x+5, person.y+5)) # Add 5 to get circle center
             
         # Update All Recovered People
         for person in self.recovered:
-            person.update_person()
+            self.people[person].update_person()
             
         # Update All Symptomatic People
         for person in self.sympt:
-            person.update_person()
-            if not person.sympt:
-                changed_people.append(person)
+            self.people[person].update_person()
                 
         # Update All Asymptomatic People
         for person in self.asympt:
-            person.update_person()
-            if not person.asmpt:
-                changed_people.append(person)
+            self.people[person].update_person()
                 
         # Update All Healthy People
         for person in self.healthy:
             # Determine if person is Encountering a Sick Person
-            pass
+            encountering = False
+            # Add 5 to get circle center
+            health_pos = np.array([self.people[person].x+5, self.people[person].y+5])
+            # Check that the healthy person is not too close to any of the sick people
+            for sick_loc in risk_locations:
+                if np.linalg.norm(sick_loc-health_pos) < 10:
+                    encountering = True
+                    break
+            # Update Person
+            self.people[person].update_person(encountering=encountering)
+            
+        # Remake ID Lists
+        self.healthy = [self.people[person].id for person in list(range(1, len(self.people) + 1)) 
+                        if self.people[person].healthy]
+        self.asympt = [self.people[person].id for person in list(range(1, len(self.people) + 1)) 
+                       if self.people[person].asympt]
+        self.sympt = [self.people[person].id for person in list(range(1, len(self.people) + 1)) 
+                      if self.people[person].sympt]
+        self.recovered = [self.people[person].id for person in list(range(1, len(self.people) + 1)) 
+                          if self.people[person].recovered]
+        self.dead = [self.people[person].id for person in list(range(1, len(self.people) + 1)) 
+                     if self.people[person].dead]
         
 
 class Person_:
