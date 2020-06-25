@@ -104,37 +104,6 @@ class Society:
             # Add Person to Healthy List
             self.people.append(Person(i, reg, self.regions[n_reg][reg], pi, incp, pac, ttr, dr, tf, vf, False))
             
-        ###
-        # Update All People Once on Init to Prevent Bizarre Stacking at Edges Problem
-        # Update All Recovered People
-        for person in self.recovered:
-            self.people[person].update_person()
-            
-        # Update All Symptomatic People
-        for person in self.sympt:
-            self.people[person].update_person()
-                
-        # Update All Asymptomatic People
-        for person in self.asympt:
-            self.people[person].update_person()
-                
-        # Update All Healthy People
-        for person in self.healthy:
-            self.people[person].update_person()
-            
-        # Remake ID Lists
-        self.healthy = [self.people[person].id for person in list(range(1, len(self.people))) 
-                        if self.people[person].healthy]
-        self.asympt = [self.people[person].id for person in list(range(1, len(self.people))) 
-                       if self.people[person].asympt]
-        self.sympt = [self.people[person].id for person in list(range(1, len(self.people))) 
-                      if self.people[person].sympt]
-        self.recovered = [self.people[person].id for person in list(range(1, len(self.people))) 
-                          if self.people[person].recovered]
-        self.dead = [self.people[person].id for person in list(range(1, len(self.people))) 
-                     if self.people[person].dead]
-        ###
-            
     
     def update_society(self):
         """
@@ -238,6 +207,7 @@ class Person:
             Indicates whether or not to update the future position list with
             travel to a particular destination. Used for traveling between
             regions or to a central location. The default is False.
+            
         travel_to : TYPE, optional
             Specifies the location to travel directly to if start_trip. Ignored
             if start_trip is False. The default is None.
@@ -353,6 +323,7 @@ class Person:
     
     
     def calc_pos(self, t=0.1, num=1000, size=10):
+        init_x, init_y = float(self.x), float(self.y)
         xs = (t*np.arange(num))*(self.vx*np.ones(num))+self.x*np.ones(num)
         xb_check = np.nonzero(np.logical_or(xs <= self.reg_bd[0][0], xs >= self.reg_bd[0][1]-size))
         while len(xb_check[0]) > 0:
@@ -369,6 +340,7 @@ class Person:
             ys[yb_check[0][0]:] = (t*np.arange(num-yb_check[0][0]))*(self.vy*np.ones(num-yb_check[0][0]))+self.y*np.ones(num-yb_check[0][0])
             yb_check = np.nonzero(np.logical_or(ys <= self.reg_bd[1][0], ys >= self.reg_bd[1][1]-size))
         
+        self.x, self.y = init_x, init_y
         return xs, ys
     
     
