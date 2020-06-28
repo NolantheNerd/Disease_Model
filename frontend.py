@@ -57,7 +57,7 @@ class Disease_Simulator:
         
         ### Toggle Frame ###
         self.tog_frame = tk.Frame(self.mainframe)
-        self.tog_frame.grid(row=1, column=1, rowspan=2)
+        self.tog_frame.grid(row=1, column=1, rowspan=3)
         
         # Quit Button
         quit_button = tk.Button(self.tog_frame, text="Quit", command=self.close)
@@ -209,9 +209,31 @@ class Disease_Simulator:
         # Title Font
         title_font = tkFont.Font(family="Helvetica", size=16)
         
+        ### Indicator Frame ###
+        self.indicator_frame = tk.Frame(self.mainframe)
+        self.indicator_frame.grid(row=1, column=2)
+        
+        # Travel Indicator Label
+        travel_ind_label = tk.Label(self.indicator_frame, text="Travel:")
+        travel_ind_label.grid(row=0, column=0)
+        
+        # Travel Indicator Light
+        self.travel_ind_canvas = tk.Canvas(self.indicator_frame, width=25, height=25)
+        self.travel_ind_canvas.grid(row=0, column=1)
+        self.travel_ind_canvas.create_rectangle(0, 0, 25, 25, fill="#00FF00")
+        
+        # Social Distance Label
+        sd_ind_label = tk.Label(self.indicator_frame, text="Social Distancing:")
+        sd_ind_label.grid(row=0, column=2)
+        
+        # Social Distance Light
+        self.sd_ind_canvas = tk.Canvas(self.indicator_frame, width=25, height=25)
+        self.sd_ind_canvas.grid(row=0, column=3)
+        self.sd_ind_canvas.create_rectangle(0, 0, 25, 25, fill="#FF0000")
+        
         ### Quarantine Frame ###
         self.quarantine_frame = tk.Frame(self.mainframe)
-        self.quarantine_frame.grid(row=1, column=2)
+        self.quarantine_frame.grid(row=2, column=2)
         
         # Quarantine Label
         quar_label = tk.Label(self.quarantine_frame, text="Quarantine Zone:", font=title_font)
@@ -223,7 +245,7 @@ class Disease_Simulator:
         
         ### Legend Frame ###
         legend_frame = tk.Frame(self.mainframe)
-        legend_frame.grid(row=2, column=2, sticky=tk.N+tk.W)
+        legend_frame.grid(row=3, column=2, sticky=tk.N+tk.W)
         
         # Legend Title
         legend_title = tk.Label(legend_frame, text="Legend:", font=title_font)
@@ -323,6 +345,10 @@ class Disease_Simulator:
                                self.cl_var.get(), self.clf_var.get(),
                                self.sdd_var.get())
         
+        # Keep Track of Indicator Variables
+        self.can_travel = self.society.travel_permitted
+        self.must_social_distance = self.society.social_distancing
+        
         # Run Update Loop
         self.run_simulation = True
         while self.run_simulation:
@@ -345,6 +371,16 @@ class Disease_Simulator:
         self.quar_canvas.destroy()
         self.quar_canvas = tk.Canvas(self.quarantine_frame, width=100, height=100)
         self.quar_canvas.grid(row=0, column=1)
+        
+        self.travel_ind_canvas.destroy()
+        self.travel_ind_canvas = tk.Canvas(self.indicator_frame, width=25, height=25)
+        self.travel_ind_canvas.grid(row=0, column=1)
+        self.travel_ind_canvas.create_rectangle(0, 0, 25, 25, fill="#00FF00")
+        
+        self.sd_ind_canvas.destroy()
+        self.sd_ind_canvas = tk.Canvas(self.indicator_frame, width=25, height=25)
+        self.sd_ind_canvas.grid(row=0, column=3)
+        self.sd_ind_canvas.create_rectangle(0, 0, 25, 25, fill="#FF0000")
         
         
     def update_simulation(self):
@@ -390,8 +426,29 @@ class Disease_Simulator:
             
             # Update Quarantined Canvas
             elif self.quar_var.get():
-                # Add 200 to Bring them Out of Hiding
-                self.quar_canvas.create_oval(person.x+200, person.y+200, person.x+210, person.y+210, fill=color, outline=None)
+                self.quar_canvas.create_oval(person.x, person.y, person.x+10, person.y+10, fill=color, outline=None)
+                
+                
+        # Update Indicator Lights (only if values have changed)
+        if self.society.travel_permitted != self.can_travel:
+            self.can_travel = self.society.travel_permitted
+            self.travel_ind_canvas.delete("all")
+            if self.society.travel_permitted:
+                trav_col = "#00FF00"
+            else:
+                trav_col = "#FF0000"
+            self.travel_ind_canvas.create_rectangle(0, 0, 25, 25, fill=trav_col)
+            self.travel_ind_canvas.update()
+        
+        if self.society.social_distancing != self.must_social_distance:
+            self.must_social_distance = self.society.social_distancing
+            self.sd_ind_canvas.delete("all")
+            if self.society.social_distancing:
+                sd_col = "#00FF00"
+            else:
+                sd_col = "#FF0000"
+            self.sd_ind_canvas.create_rectangle(0, 0, 25, 25, fill=sd_col)
+            self.sd_ind_canvas.update()
             
         self.canvas.update()
         self.quar_canvas.update()
