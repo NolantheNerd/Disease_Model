@@ -76,6 +76,9 @@ class Society:
         self.n_reg = n_reg
         self.pirt = pirt/100
         self.sdd = sdd/100
+        self.incp = incp
+        self.quar = quar
+        self.qd = qd
         
         # Person Object List - This is where all the Person Objects live 
         # (Start with None so id == list index as id starts at 1)
@@ -90,6 +93,7 @@ class Society:
         self.traveling = []
         self.shopping = []
         self.will_social_distance = sorted(random.sample(list(range(1, pop + 1)), int((psd/100)*pop)))
+        self.quarantine = []
         
         # Region Definitions
         self.regions = {1: (((0, 1000), (0, 500)),), 2: (((0, 500), (0, 500)), ((500, 1000), (0, 500))),
@@ -193,6 +197,8 @@ class Society:
                           if self.people[person].traveling]
         self.shopping = [self.people[person].id for person in list(range(1, len(self.people)))
                          if self.people[person].shopping]
+        self.quarantine = [self.people[person].id for person in list(range(1, len(self.people)))
+                           if self.people[person].quarantined]
         
         # Block Travel if Too Many People are Infected
         if (len(self.sympt) + len(self.asympt))/len(self.people) > self.pirt:
@@ -215,6 +221,12 @@ class Society:
         else:
             for person in self.will_social_distance:
                 setattr(self.people[person], "social_distancing", False)
+                
+        # Move Symptomatic People to Quarantine if they Have Shown Symptoms for Enough Time
+        if self.quar:
+            for person in range(1, len(self.people)):
+                if self.people[person].sympt and (self.people[person].day0 - self.incp >= self.qd):
+                    setattr(self.people[person], "quarantined", True)
         
 
 class Person:
@@ -244,6 +256,7 @@ class Person:
         self.recovered = False
         self.dead = False
         self.social_distancing = False
+        self.quarantined = False
         if self.asympt:
             self.day0 = int(self.time)
         
@@ -287,6 +300,8 @@ class Person:
         """
         # Update Personal Times
         self.time += 1
+        
+        # Don't Progress Healing if Traveling Between Regions
         if (self.asympt or self.sympt) and not self.traveling:
             self.day0 += 1
             
@@ -295,7 +310,11 @@ class Person:
         self.just_started_shopping = False
             
         # Update State and Position
-        self.update_position(start_trip, travel_to, new_reg, new_bds)
+        # Remove People in Quarantine from Simulation Area
+        if self.quarantined:
+            self.x, self.y = -20, -20
+        else:
+            self.update_position(start_trip, travel_to, new_reg, new_bds)
         self.update_state(encountering)
         
         

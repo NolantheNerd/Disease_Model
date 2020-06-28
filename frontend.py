@@ -156,7 +156,7 @@ class Disease_Simulator:
         quar_label.grid(row=5, column=0)
         
         # Quarantine Checkbox
-        self.quar_var = tk.IntVar()
+        self.quar_var = tk.BooleanVar()
         quar_check = tk.Checkbutton(self.tog_frame, variable=self.quar_var)
         quar_check.grid(row=5, column=1)
         
