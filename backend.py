@@ -96,9 +96,17 @@ class Society:
                    8: (((0, 250), (0, 250)), ((250, 500), (0, 250)), ((500, 750), (0, 250)), ((750, 1000), (0, 250)), ((0, 250), (250, 500)), ((250, 500), (250, 500)), ((500, 750), (250, 500)), ((750, 1000), (250, 500))),
                    9: (((0, 333), (0, 167)), ((333, 667), (0, 167)), ((667, 1000), (0, 167)), ((0, 333), (167, 333)), ((333, 667), (167, 333)), ((667, 1000), (167, 333)), ((0, 333), (333, 500)), ((333, 667), (333, 500)), ((667, 1000), (333, 500)))}
         
+        self.store_locations = {1: ((500, 250),), 2: ((250, 250), (750, 250)), 3: ((167, 250), (500, 250), (833, 250)),
+                                4: ((250, 125), (750, 125), (250, 375), (750, 375)),
+                                5: ((250, 125), (750, 125), (167, 375), (500, 375), (833, 375)),
+                                6: ((167, 125), (500, 125), (833, 125), (167, 375), (500, 375), (833, 375)),
+                                7: ((167, 125), (500, 125), (833, 125), (125, 375), (375, 375), (625, 375), (875, 375)),
+                                8: ((125, 175), (375, 175), (625, 175), (875, 175), (125, 375), (375, 375), (625, 375), (875, 375)),
+                                9: ((167, 83), (500, 83), (833, 83), (167, 250), (500, 250), (833, 250), (167, 417), (500, 417), (833, 417))}
+        
         # Instantiate People
         # Start with One Asymptomatic Person
-        self.people.append(Person(1, 1, self.regions[self.n_reg][0], pi, incp, pac, ttr, dr, tf, vf, True))
+        self.people.append(Person(1, 0, self.regions[self.n_reg][0], pi, incp, pac, ttr, dr, tf, vf, True))
         
         # Add Remaining Healthy People
         for i in range(2, pop + 1):
@@ -155,6 +163,14 @@ class Society:
                 new_y = random.uniform(new_bds[1][0] + 10, new_bds[1][1] - 10)
                 travel_to = (new_x, new_y)
                 
+            # Check if the Person wants to go Shopping
+            elif self.people[person].just_started_shopping:
+                start_trip = True
+                
+                # Find Location of Store in Person's Region
+                new_x, new_y = self.store_locations[self.n_reg][self.people[person].reg]
+                travel_to = (new_x-5, new_y-5)
+                
             self.people[person].update_person(encountering, start_trip, travel_to, new_reg, new_bds)
             
         # Remake ID Lists
@@ -170,6 +186,8 @@ class Society:
                      if self.people[person].dead]
         self.traveling = [self.people[person].id for person in list(range(1, len(self.people)))
                           if self.people[person].traveling]
+        self.shopping = [self.people[person].id for person in list(range(1, len(self.people)))
+                         if self.people[person].shopping]
         
         # Block Travel if Too Many People are Infected
         if (len(self.sympt) + len(self.asympt))/len(self.people) > self.pirt:
@@ -205,6 +223,7 @@ class Person:
         self.shopping = False
         self.just_started_traveling = False
         self.restricted_from_traveling = False
+        self.just_started_shopping = False
         self.recovered = False
         self.dead = False
         if self.asympt:
@@ -253,8 +272,9 @@ class Person:
         if (self.asympt or self.sympt) and not self.traveling:
             self.day0 += 1
             
-        # Reset Just Started Traveling
+        # Reset Just Started Traveling/Shopping
         self.just_started_traveling = False
+        self.just_started_shopping = False
             
         # Update State and Position
         self.update_position(start_trip, travel_to, new_reg, new_bds)
@@ -318,9 +338,14 @@ class Person:
                 self.traveling = True
                 self.just_started_traveling = True
                 
-            # Start a Trip to the Central Location
-            elif dice_roll < (self.tf + self.vf):
+        # Decide if Person should start a Trip to the Central Location
+        if not self.traveling and not self.shopping:
+            dice_roll = random.random()
+            
+            # Start a Trip to the Store
+            if dice_roll < self.vf:
                 self.shopping = True
+                self.just_started_shopping = True
                 
         
     def update_position(self, start_trip=False, travel_to=None, new_reg=None, new_bds=None):
@@ -347,10 +372,12 @@ class Person:
             Specifies the boundaries of the new region that the person is moving
             to.
         """
-        # Overwrite future positions to take a direct trip
+        # Overwrite future positions to take a direct trip (to new region or store)
         if start_trip:
-            self.reg = new_reg
-            self.reg_bd = new_bds
+            # Trip to a New Region
+            if new_reg is not None:
+                self.reg = new_reg
+                self.reg_bd = new_bds
             new_xs, new_ys = self.travel_path(self.x, self.y, travel_to[0], travel_to[1])
             self.xs = np.concatenate([self.xs[:self.time], new_xs])
             self.ys = np.concatenate([self.ys[:self.time], new_ys])
