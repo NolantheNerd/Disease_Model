@@ -78,7 +78,7 @@ class Society:
         self.sdd = sdd/100
         self.incp = incp
         self.quar = quar
-        self.qd = qd
+        self.qd = qd*50
         
         # Person Object List - This is where all the Person Objects live 
         # (Start with None so id == list index as id starts at 1)
@@ -225,8 +225,9 @@ class Society:
         # Move Symptomatic People to Quarantine if they Have Shown Symptoms for Enough Time
         if self.quar:
             for person in range(1, len(self.people)):
-                if self.people[person].sympt and (self.people[person].day0 - self.incp >= self.qd):
+                if self.people[person].sympt and self.people[person].day1 == self.qd:
                     setattr(self.people[person], "quarantined", True)
+                    setattr(self.people[person], "just_quarantined", True)
         
 
 class Person:
@@ -236,9 +237,9 @@ class Person:
         self.reg = reg
         self.reg_bd = reg_bd
         self.pi = pi/100
-        self.incp = incp*10
+        self.incp = incp*50
         self.pac = pac/100
-        self.ttr = ttr*10
+        self.ttr = ttr*50
         self.dr = dr/100
         self.tf = tf/100
         self.vf = vf/100
@@ -257,6 +258,7 @@ class Person:
         self.dead = False
         self.social_distancing = False
         self.quarantined = False
+        self.just_quarantined = False
         if self.asympt:
             self.day0 = int(self.time)
         
@@ -304,6 +306,8 @@ class Person:
         # Don't Progress Healing if Traveling Between Regions
         if (self.asympt or self.sympt) and not self.traveling:
             self.day0 += 1
+        if self.sympt and not self.traveling:
+            self.day1 += 1
             
         # Reset Just Started Traveling/Shopping
         self.just_started_traveling = False
@@ -311,11 +315,17 @@ class Person:
             
         # Update State and Position
         # Remove People in Quarantine from Simulation Area
-        if self.quarantined:
-            self.x, self.y = -20, -20
+        if self.just_quarantined:
+            # Subtract 200 to Hide them From Main Group
+            self.x, self.y = random.uniform(10, 90) - 200, random.uniform(10, 90) - 200
+        elif self.quarantined:
+            pass
         else:
             self.update_position(start_trip, travel_to, new_reg, new_bds)
         self.update_state(encountering)
+        
+        # Reset Just Quarantined Variable
+        self.just_quarantined = False
         
         
     def update_state(self, encountering=False):
@@ -349,6 +359,8 @@ class Person:
             
             # Becomes Symptomatic
             if dice_roll < (1 - self.pac):
+                # Time Since Became Symptomatic
+                self.day1 = 0
                 self.asympt = False
                 self.sympt = True
                 

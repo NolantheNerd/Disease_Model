@@ -57,7 +57,7 @@ class Disease_Simulator:
         
         ### Toggle Frame ###
         self.tog_frame = tk.Frame(self.mainframe)
-        self.tog_frame.grid(row=1, column=1)
+        self.tog_frame.grid(row=1, column=1, rowspan=2)
         
         # Quit Button
         quit_button = tk.Button(self.tog_frame, text="Quit", command=self.close)
@@ -167,7 +167,7 @@ class Disease_Simulator:
         
         # Quarantine Delay Slider
         self.quard_var = tk.IntVar()
-        quard_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=30, variable=self.quard_var)
+        quard_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=28, variable=self.quard_var)
         quard_slider.grid(row=5, column=3)
         
         # Central Location Label
@@ -206,12 +206,24 @@ class Disease_Simulator:
         sdp_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.sdp_var)
         sdp_slider.grid(row=7, column=3)
         
-        ### Legend Frame ###
-        legend_frame = tk.Frame(self.mainframe)
-        legend_frame.grid(row=1, column=2, sticky=tk.N+tk.W)
-        
         # Title Font
         title_font = tkFont.Font(family="Helvetica", size=16)
+        
+        ### Quarantine Frame ###
+        self.quarantine_frame = tk.Frame(self.mainframe)
+        self.quarantine_frame.grid(row=1, column=2)
+        
+        # Quarantine Label
+        quar_label = tk.Label(self.quarantine_frame, text="Quarantine Zone:", font=title_font)
+        quar_label.grid(row=0, column=0)
+        
+        # Quarantine Canvas
+        self.quar_canvas = tk.Canvas(self.quarantine_frame, width=100, height=100)
+        self.quar_canvas.grid(row=0, column=1)
+        
+        ### Legend Frame ###
+        legend_frame = tk.Frame(self.mainframe)
+        legend_frame.grid(row=2, column=2, sticky=tk.N+tk.W)
         
         # Legend Title
         legend_title = tk.Label(legend_frame, text="Legend:", font=title_font)
@@ -325,15 +337,20 @@ class Disease_Simulator:
         # Enable Start Button
         self.go_button.config(state=tk.ACTIVE)
         
-        # Reset Canvas
+        # Reset Canvases
         self.canvas.destroy()
         self.canvas = tk.Canvas(self.sim_frame, width=1000, height=500)
         self.canvas.grid(row=0, column=0)
+        
+        self.quar_canvas.destroy()
+        self.quar_canvas = tk.Canvas(self.quarantine_frame, width=100, height=100)
+        self.quar_canvas.grid(row=0, column=1)
         
         
     def update_simulation(self):
         # Clear Existing Items from Canvas
         self.canvas.delete("all")
+        self.quar_canvas.delete("all")
         
         # Draw Region Boundaries
         self.canvas.create_line(3, 3, 1000, 3, width=4)
@@ -361,9 +378,18 @@ class Disease_Simulator:
                 color = "#00FF00"
             elif person.dead:
                 color = "#000000"
-            self.canvas.create_oval(person.x, person.y, person.x+10, person.y+10, fill=color, outline=None)
+            # Update Non-Quarantined Canvas
+            if not person.quarantined:
+                self.canvas.create_oval(person.x, person.y, person.x+10, person.y+10, fill=color, outline=None)
+            
+            # Update Quarantined Canvas
+            elif self.quar_var.get():
+                # Add 200 to Bring them Out of Hiding
+                self.quar_canvas.create_oval(person.x+200, person.y+200, person.x+210, person.y+210, fill=color, outline=None)
             
         self.canvas.update()
+        self.quar_canvas.update()
+        
             
     def close(self):
         # Kill Update Loop
