@@ -12,6 +12,14 @@ class Disease_Simulator:
                         8: ((0, 250, 1000, 250), (250, 0, 250, 500), (500, 0, 500, 500), (750, 0, 750, 500)),
                         9: ((0, 167, 1000, 167), (0, 333, 1000, 333), (333, 0, 333, 500), (667, 0, 667, 500))}
         
+        self.store_locations = {1: ((500, 250),), 2: ((250, 250), (750, 250)), 3: ((167, 250), (500, 250), (833, 250)),
+                                4: ((250, 125), (750, 125), (250, 375), (750, 375)),
+                                5: ((250, 125), (750, 125), (167, 375), (500, 375), (833, 375)),
+                                6: ((167, 125), (500, 125), (833, 125), (167, 375), (500, 375), (833, 375)),
+                                7: ((167, 125), (500, 125), (833, 125), (125, 375), (375, 375), (625, 375), (875, 375)),
+                                8: ((125, 175), (375, 175), (625, 175), (875, 175), (125, 375), (375, 375), (625, 375), (875, 375)),
+                                9: ((167, 83), (500, 83), (833, 83), (167, 250), (500, 250), (833, 250), (167, 417), (500, 417), (833, 417))}
+        
         # Base Values
         self.size = 10
         
@@ -139,7 +147,7 @@ class Disease_Simulator:
         cl_label.grid(row=6, column=0)
         
         # Central Location Checkbox
-        self.cl_var = tk.IntVar()
+        self.cl_var = tk.BooleanVar()
         cl_check = tk.Checkbutton(self.tog_frame, variable=self.cl_var)
         cl_check.grid(row=6, column=1)
         
@@ -148,8 +156,8 @@ class Disease_Simulator:
         clf_label.grid(row=6, column=2)
         
         # Central Location Frequency Slider
-        self.clf_var = tk.IntVar()
-        clf_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=30, variable=self.clf_var)
+        self.clf_var = tk.DoubleVar()
+        clf_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=1, resolution=0.01, variable=self.clf_var)
         clf_slider.grid(row=6, column=3)
         
         # Infectability Label
@@ -236,6 +244,11 @@ class Disease_Simulator:
         
         for line in self.region_lines[self.cities_var.get()]:
             self.canvas.create_line(line[0], line[1], line[2], line[3], width=4)
+            
+        # Draw Central Locations
+        if self.cl_var.get():
+            for store in self.store_locations[self.cities_var.get()]:
+                self.canvas.create_rectangle(store[0]-5, store[1]-5, store[0]+5, store[1]+5, fill="orange", width=1.5)
         
         # Draw Each Person
         for person in self.society.people[1:]:
