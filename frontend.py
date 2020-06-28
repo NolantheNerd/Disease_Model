@@ -94,8 +94,8 @@ class Disease_Simulator:
         tf_label.grid(row=1, column=2)
         
         # Travel Frequency Slider
-        self.tf_var = tk.IntVar()
-        tf_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=365, variable=self.tf_var)
+        self.tf_var = tk.DoubleVar()
+        tf_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=1, resolution=0.01, variable=self.tf_var)
         tf_slider.grid(row=1, column=3)
         
         # Death Rate Label
@@ -103,7 +103,7 @@ class Disease_Simulator:
         dr_label.grid(row=4, column=0)
         
         # Death Rate Slider
-        self.dr_var = tk.IntVar()
+        self.dr_var = tk.DoubleVar()
         dr_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, resolution=0.5, variable=self.dr_var)
         dr_slider.grid(row=4, column=1)
         
@@ -185,7 +185,7 @@ class Disease_Simulator:
         
         # Incubation Period Slider
         self.inc_var = tk.IntVar()
-        inc_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=30, variable=self.inc_var)
+        inc_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=30, variable=self.inc_var)
         inc_slider.grid(row=3, column=3)
         
         self.root.mainloop()

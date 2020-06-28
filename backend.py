@@ -69,6 +69,10 @@ class Society:
         Society Object
 
         """
+        # Store Society Specific Information
+        self.n_reg = n_reg
+        self.pirt = pirt/100
+        
         # Person Object List - This is where all the Person Objects live 
         # (Start with None so id == list index as id starts at 1)
         self.people = [None]
@@ -94,15 +98,15 @@ class Society:
         
         # Instantiate People
         # Start with One Asymptomatic Person
-        self.people.append(Person(1, 1, self.regions[n_reg][0], pi, incp, pac, ttr, dr, tf, vf, True))
+        self.people.append(Person(1, 1, self.regions[self.n_reg][0], pi, incp, pac, ttr, dr, tf, vf, True))
         
         # Add Remaining Healthy People
         for i in range(2, pop + 1):
             # Get Region to Assign Person to
-            reg = (i-2)%n_reg
+            reg = (i-2)%self.n_reg
             
             # Add Person to Healthy List
-            self.people.append(Person(i, reg, self.regions[n_reg][reg], pi, incp, pac, ttr, dr, tf, vf, False))
+            self.people.append(Person(i, reg, self.regions[self.n_reg][reg], pi, incp, pac, ttr, dr, tf, vf, False))
             
     
     def update_society(self):
@@ -113,35 +117,45 @@ class Society:
         # Get Locations of All Symptomatic and Asymptomatic People
         risk_locations_x, risk_locations_y = [], []
         for person in self.asympt + self.sympt:
-            risk_locations_x.append((self.people[person].x-5, self.people[person].x+5))
-            risk_locations_y.append((self.people[person].y-5, self.people[person].y+5))
+            # "Fly Overs" Can't Infect People
+            if person not in self.traveling:
+                risk_locations_x.append((self.people[person].x-5, self.people[person].x+5))
+                risk_locations_y.append((self.people[person].y-5, self.people[person].y+5))
             
-        # Update All Recovered People
-        for person in self.recovered:
-            self.people[person].update_person()
+        # Update All People
+        for person in self.recovered + self.sympt + self.asympt + self.healthy:
+            if person in self.healthy:
+                # Determine if person is Encountering a Sick Person
+                encountering = False
+                # Read healthy person's location once
+                healthy_x, healthy_y = self.people[person].x, self.people[person].y
+                # Check that the healthy person is not too close to any of the sick people
+                for i in range(len(risk_locations_x)):
+                    if (healthy_x > risk_locations_x[i][0] and healthy_x < risk_locations_x[i][1] and 
+                        healthy_y > risk_locations_y[i][0] and healthy_y < risk_locations_y[i][1]):
+                        encountering = True
+                        break
+            else:
+                encountering = False
+                
+            # Prepare other Update Person Parameters
+            start_trip, travel_to, new_reg, new_bds = False, None, None, None
             
-        # Update All Symptomatic People
-        for person in self.sympt:
-            self.people[person].update_person()
+            # Check if the Person Wants to Travel
+            if self.people[person].just_started_traveling and self.n_reg > 1:
+                start_trip = True
                 
-        # Update All Asymptomatic People
-        for person in self.asympt:
-            self.people[person].update_person()
+                # Pick a Region for the Person to Travel to
+                regions = list(set(list(range(self.n_reg))) - {self.people[person].reg})
+                new_reg = random.choice(regions)
                 
-        # Update All Healthy People
-        for person in self.healthy:
-            # Determine if person is Encountering a Sick Person
-            encountering = False
-            # Read healthy person's location once
-            healthy_x, healthy_y = self.people[person].x, self.people[person].y
-            # Check that the healthy person is not too close to any of the sick people
-            for i in range(len(risk_locations_x)):
-                if (healthy_x > risk_locations_x[i][0] and healthy_x < risk_locations_x[i][1] and 
-                    healthy_y > risk_locations_y[i][0] and healthy_y < risk_locations_y[i][1]):
-                    encountering = True
-                    break
-            # Update Person
-            self.people[person].update_person(encountering=encountering)
+                # Pick a Spot in the New Region to Move to
+                new_bds = self.regions[self.n_reg][new_reg]
+                new_x = random.uniform(new_bds[0][0] + 10, new_bds[0][1] - 10)
+                new_y = random.uniform(new_bds[1][0] + 10, new_bds[1][1] - 10)
+                travel_to = (new_x, new_y)
+                
+            self.people[person].update_person(encountering, start_trip, travel_to, new_reg, new_bds)
             
         # Remake ID Lists
         self.healthy = [self.people[person].id for person in list(range(1, len(self.people))) 
@@ -154,6 +168,18 @@ class Society:
                           if self.people[person].recovered]
         self.dead = [self.people[person].id for person in list(range(1, len(self.people))) 
                      if self.people[person].dead]
+        self.traveling = [self.people[person].id for person in list(range(1, len(self.people)))
+                          if self.people[person].traveling]
+        
+        # Block Travel if Too Many People are Infected
+        if (len(self.sympt) + len(self.asympt))/len(self.people) > self.pirt:
+            for person in range(1, len(self.people)):
+                setattr(self.people[person], "restricted_from_traveling", True)
+                
+        # Permit Travel if Few Enough People are Infected
+        else:
+            for person in range(1, len(self.people)):
+                setattr(self.people[person], "restricted_from_traveling", False)
         
 
 class Person:
@@ -177,6 +203,8 @@ class Person:
         self.sympt = False
         self.traveling = False
         self.shopping = False
+        self.just_started_traveling = False
+        self.restricted_from_traveling = False
         self.recovered = False
         self.dead = False
         if self.asympt:
@@ -187,10 +215,10 @@ class Person:
         self.y = random.uniform(self.reg_bd[1][0] + 10, self.reg_bd[1][1] - 10)
         self.vx = 75*(random.random()-0.5)
         self.vy = 75*(random.random()-0.5)
-        self.xs, self.ys = self.calc_pos(num=random.randint(500, 2500))
+        self.xs, self.ys = self.calc_pos(num=random.choice(range(500, 2500)))
         
         
-    def update_person(self, encountering=False, start_trip=False, travel_to=None):
+    def update_person(self, encountering=False, start_trip=False, travel_to=None, new_reg=None, new_bds=None):
         """
         The update_person function is generally responsible for updating the 
         Person to the next time step. This involves iterating their clocks
@@ -208,18 +236,28 @@ class Person:
             travel to a particular destination. Used for traveling between
             regions or to a central location. The default is False.
             
-        travel_to : TYPE, optional
+        travel_to : 2-tuple or None, optional
             Specifies the location to travel directly to if start_trip. Ignored
             if start_trip is False. The default is None.
+            
+        new_reg : int, optional
+            Specifies the new region that the person is moving to.
+            
+        new_bds : tuple, optional
+            Specifies the boundaries of the new region that the person is moving
+            to.
 
         """
         # Update Personal Times
         self.time += 1
-        if self.asympt or self.sympt:
+        if (self.asympt or self.sympt) and not self.traveling:
             self.day0 += 1
             
+        # Reset Just Started Traveling
+        self.just_started_traveling = False
+            
         # Update State and Position
-        self.update_position(start_trip, travel_to)
+        self.update_position(start_trip, travel_to, new_reg, new_bds)
         self.update_state(encountering)
         
         
@@ -272,19 +310,20 @@ class Person:
                 self.recovered = True
                 
         # Decide if Person should Start a Trip
-        if not self.traveling and not self.shopping:
+        if not self.traveling and not self.restricted_from_traveling:
             dice_roll = random.random()
             
             # Start a Trip to a New Region
             if dice_roll < self.tf:
                 self.traveling = True
+                self.just_started_traveling = True
                 
+            # Start a Trip to the Central Location
             elif dice_roll < (self.tf + self.vf):
                 self.shopping = True
                 
         
-    
-    def update_position(self, start_trip=False, travel_to=None):
+    def update_position(self, start_trip=False, travel_to=None, new_reg=None, new_bds=None):
         """
         The update_position function is responsible for iterating the position
         of the person. That means creating new positions if necessary, and
@@ -300,9 +339,18 @@ class Person:
         travel_to: 2-tuple or None
             Specifies the location to travel directly to if start_trip. Ignored
             if start_trip is False. Defaults to None.
+            
+        new_reg : int, optional
+            Specifies the new region that the person is moving to.
+            
+        new_bds : tuple, optional
+            Specifies the boundaries of the new region that the person is moving
+            to.
         """
         # Overwrite future positions to take a direct trip
         if start_trip:
+            self.reg = new_reg
+            self.reg_bd = new_bds
             new_xs, new_ys = self.travel_path(self.x, self.y, travel_to[0], travel_to[1])
             self.xs = np.concatenate([self.xs[:self.time], new_xs])
             self.ys = np.concatenate([self.ys[:self.time], new_ys])
@@ -345,6 +393,6 @@ class Person:
     
     
     def travel_path(self, x, y, new_x, new_y):
-        steps = max((int(np.ceil(np.sqrt((new_x-x)**2+(new_y-y)**2)/75)), 3))
+        steps = max((int(np.ceil(np.sqrt((new_x-x)**2+(new_y-y)**2))/10), 3))
         return np.linspace(x, new_x, steps), np.linspace(y, new_y, steps)
         
