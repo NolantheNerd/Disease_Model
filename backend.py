@@ -226,6 +226,7 @@ class Person:
         self.just_started_shopping = False
         self.recovered = False
         self.dead = False
+        self.social_distancing = False
         if self.asympt:
             self.day0 = int(self.time)
         
@@ -381,6 +382,11 @@ class Person:
             new_xs, new_ys = self.travel_path(self.x, self.y, travel_to[0], travel_to[1])
             self.xs = np.concatenate([self.xs[:self.time], new_xs])
             self.ys = np.concatenate([self.ys[:self.time], new_ys])
+            
+        # Social Distancing
+        elif self.social_distancing:
+            self.xs = np.concatenate(self.xs, np.array([self.x]))
+            self.ys = np.concatenate(self.ys, np.array([self.y]))
         
         # Create new position values if necessary
         elif self.time > len(self.xs) - 1:
