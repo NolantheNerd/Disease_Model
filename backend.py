@@ -78,7 +78,10 @@ class Society:
         self.sdd = sdd/100
         self.incp = incp
         self.quar = quar
-        self.qd = qd
+        self.qd = qd*10
+        
+        self.travel_permitted = True
+        self.social_distancing = False
         
         # Person Object List - This is where all the Person Objects live 
         # (Start with None so id == list index as id starts at 1)
@@ -134,8 +137,8 @@ class Society:
         # Get Locations of All Symptomatic and Asymptomatic People
         risk_locations_x, risk_locations_y = [], []
         for person in self.asympt + self.sympt:
-            # "Fly Overs" Can't Infect People
-            if person not in self.traveling:
+            # "Fly Overs" and Quarantined People Can't Infect People
+            if person not in self.traveling and not self.people[person].quarantined:
                 risk_locations_x.append((self.people[person].x-5, self.people[person].x+5))
                 risk_locations_y.append((self.people[person].y-5, self.people[person].y+5))
             
@@ -204,11 +207,13 @@ class Society:
         if (len(self.sympt) + len(self.asympt))/len(self.people) > self.pirt:
             for person in range(1, len(self.people)):
                 setattr(self.people[person], "restricted_from_traveling", True)
+            self.travel_permitted = False
                 
         # Permit Travel if Few Enough People are Infected
         else:
             for person in range(1, len(self.people)):
                 setattr(self.people[person], "restricted_from_traveling", False)
+            self.travel_permitted = True
                 
         # Enforce Social Distancing If Enough People are Infected
         if (len(self.sympt) + len(self.asympt))/len(self.people) > self.sdd:
@@ -216,17 +221,20 @@ class Society:
                 # Travelers/Shoppers Social Distance After their Trip
                 if not self.people[person].traveling and not self.people[person].shopping:
                     setattr(self.people[person], "social_distancing", True)
+            self.social_distancing = True
                 
         # Relax Social Distancing if Few Enough People are Infected
         else:
             for person in self.will_social_distance:
                 setattr(self.people[person], "social_distancing", False)
+            self.social_distancing = False
                 
         # Move Symptomatic People to Quarantine if they Have Shown Symptoms for Enough Time
         if self.quar:
             for person in range(1, len(self.people)):
-                if self.people[person].sympt and (self.people[person].day0 - self.incp >= self.qd):
+                if self.people[person].sympt and self.people[person].day1 == self.qd:
                     setattr(self.people[person], "quarantined", True)
+                    setattr(self.people[person], "just_quarantined", True)
         
 
 class Person:
@@ -257,6 +265,7 @@ class Person:
         self.dead = False
         self.social_distancing = False
         self.quarantined = False
+        self.just_quarantined = False
         if self.asympt:
             self.day0 = int(self.time)
         
@@ -304,6 +313,8 @@ class Person:
         # Don't Progress Healing if Traveling Between Regions
         if (self.asympt or self.sympt) and not self.traveling:
             self.day0 += 1
+        if self.sympt and not self.traveling:
+            self.day1 += 1
             
         # Reset Just Started Traveling/Shopping
         self.just_started_traveling = False
@@ -311,11 +322,16 @@ class Person:
             
         # Update State and Position
         # Remove People in Quarantine from Simulation Area
-        if self.quarantined:
-            self.x, self.y = -20, -20
+        if self.just_quarantined:
+            self.x, self.y = random.uniform(4, 90), random.uniform(4, 90)
+        elif self.quarantined:
+            pass
         else:
             self.update_position(start_trip, travel_to, new_reg, new_bds)
         self.update_state(encountering)
+        
+        # Reset Just Quarantined Variable
+        self.just_quarantined = False
         
         
     def update_state(self, encountering=False):
@@ -349,6 +365,8 @@ class Person:
             
             # Becomes Symptomatic
             if dice_roll < (1 - self.pac):
+                # Time Since Became Symptomatic
+                self.day1 = 0
                 self.asympt = False
                 self.sympt = True
                 
