@@ -1,4 +1,5 @@
 import tkinter as tk
+import tkinter.font as tkFont
 from backend import Society, Person
 
 class Disease_Simulator:
@@ -48,7 +49,7 @@ class Disease_Simulator:
         
         ### Simulator Frame ###
         self.sim_frame = tk.Frame(self.mainframe)
-        self.sim_frame.grid(row=0, column=1)
+        self.sim_frame.grid(row=0, column=1, columnspan=2)
         
         # Canvas
         self.canvas = tk.Canvas(self.sim_frame, width=1000, height=500)
@@ -56,7 +57,7 @@ class Disease_Simulator:
         
         ### Toggle Frame ###
         self.tog_frame = tk.Frame(self.mainframe)
-        self.tog_frame.grid(row=1, column=0, columnspan=2)
+        self.tog_frame.grid(row=1, column=1)
         
         # Quit Button
         quit_button = tk.Button(self.tog_frame, text="Quit", command=self.close)
@@ -204,6 +205,94 @@ class Disease_Simulator:
         self.sdp_var = tk.IntVar()
         sdp_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.sdp_var)
         sdp_slider.grid(row=7, column=3)
+        
+        ### Legend Frame ###
+        legend_frame = tk.Frame(self.mainframe)
+        legend_frame.grid(row=1, column=2, sticky=tk.N+tk.W)
+        
+        # Title Font
+        title_font = tkFont.Font(family="Helvetica", size=16)
+        
+        # Legend Title
+        legend_title = tk.Label(legend_frame, text="Legend:", font=title_font)
+        legend_title.grid(row=0, column=0, columnspan=2, sticky=tk.W)
+        
+        # Healthy Canvas
+        healthy_canvas = tk.Canvas(legend_frame, width=25, height=25)
+        healthy_canvas.grid(row=1, column=0, sticky=tk.W)
+        
+        # Add Item to Healthy Canvas
+        healthy_canvas.create_oval(5, 5, 25, 25, fill="#0000FF", outline=None)
+        
+        # Add Label to Healthy Item
+        healthy_label = tk.Label(legend_frame, text="Healthy Person")
+        healthy_label.grid(row=1, column=1)
+        
+        # Asmptomatic Canvas
+        asympt_canvas = tk.Canvas(legend_frame, width=25, height=25)
+        asympt_canvas.grid(row=2, column=0, sticky=tk.W)
+        
+        # Add Item to Asymptomatic Canvas
+        asympt_canvas.create_oval(5, 5, 25, 25, fill="#FFFF00", outline=None)
+        
+        # Add Label to Asymptomatic Item
+        asympt_label = tk.Label(legend_frame, text="Asymptomatic Person")
+        asympt_label.grid(row=2, column=1)
+        
+        # Symptomatic Canvas
+        sympt_canvas = tk.Canvas(legend_frame, width=25, height=25)
+        sympt_canvas.grid(row=3, column=0, sticky=tk.W)
+        
+        # Add Item to Symptomatic Canvas
+        sympt_canvas.create_oval(5, 5, 25, 25, fill="#FF0000", outline=None)
+        
+        # Add Label to Symptomatic Item
+        sympt_label = tk.Label(legend_frame, text="Symptomatic Person")
+        sympt_label.grid(row=3, column=1)
+        
+        # Recovered Canvas
+        recovered_canvas = tk.Canvas(legend_frame, width=25, height=25)
+        recovered_canvas.grid(row=4, column=0, sticky=tk.W)
+        
+        # Add Item to Recovered Canvas
+        recovered_canvas.create_oval(5, 5, 25, 25, fill="#00FF00", outline=None)
+        
+        # Add Label to Recovered Item
+        recovered_label = tk.Label(legend_frame, text="Recovered Person")
+        recovered_label.grid(row=4, column=1)
+        
+        # Dead Canvas
+        dead_canvas = tk.Canvas(legend_frame, width=25, height=25)
+        dead_canvas.grid(row=5, column=0, sticky=tk.W)
+        
+        # Add Item to Dead Canvas
+        dead_canvas.create_oval(5, 5, 25, 25, fill="#000000", outline=None)
+        
+        # Add Label to Dead Item
+        dead_label = tk.Label(legend_frame, text="Dead Person")
+        dead_label.grid(row=5, column=1)
+        
+        # Store Canvas
+        store_canvas = tk.Canvas(legend_frame, width=25, height=25)
+        store_canvas.grid(row=6, column=0, sticky=tk.W)
+        
+        # Add Item to Store Canvas
+        store_canvas.create_rectangle(5, 5, 25, 25, fill="orange", width=1.5)
+        
+        # Add Label to Store Item
+        store_label = tk.Label(legend_frame, text="Central Location")
+        store_label.grid(row=6, column=1)
+        
+        # Region Canvas
+        region_canvas = tk.Canvas(legend_frame, width=25, height=25)
+        region_canvas.grid(row=7, column=0, sticky=tk.W)
+        
+        # Add Item to Region Canvas
+        region_canvas.create_rectangle(5, 5, 25, 25, fill="", width=4)
+        
+        # Add Label to Region Item
+        region_label = tk.Label(legend_frame, text="Region Boundary")
+        region_label.grid(row=7, column=1)
         
         self.root.mainloop()
         
