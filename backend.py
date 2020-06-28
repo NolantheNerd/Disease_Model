@@ -78,7 +78,7 @@ class Society:
         self.sdd = sdd/100
         self.incp = incp
         self.quar = quar
-        self.qd = qd*50
+        self.qd = qd*10
         
         # Person Object List - This is where all the Person Objects live 
         # (Start with None so id == list index as id starts at 1)
@@ -237,9 +237,9 @@ class Person:
         self.reg = reg
         self.reg_bd = reg_bd
         self.pi = pi/100
-        self.incp = incp*50
+        self.incp = incp*10
         self.pac = pac/100
-        self.ttr = ttr*50
+        self.ttr = ttr*10
         self.dr = dr/100
         self.tf = tf/100
         self.vf = vf/100
@@ -317,7 +317,7 @@ class Person:
         # Remove People in Quarantine from Simulation Area
         if self.just_quarantined:
             # Subtract 200 to Hide them From Main Group
-            self.x, self.y = random.uniform(10, 90) - 200, random.uniform(10, 90) - 200
+            self.x, self.y = random.uniform(0, 90) - 200, random.uniform(0, 90) - 200
         elif self.quarantined:
             pass
         else:

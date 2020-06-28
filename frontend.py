@@ -140,7 +140,7 @@ class Disease_Simulator:
         
         # Incubation Period Slider
         self.inc_var = tk.IntVar()
-        inc_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=30, variable=self.inc_var)
+        inc_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=140, variable=self.inc_var)
         inc_slider.grid(row=4, column=1)
         
         # Average Time to Recover Label
@@ -149,7 +149,7 @@ class Disease_Simulator:
         
         # Average Time to Recover Slider
         self.ttr_var = tk.IntVar()
-        ttr_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=30, variable=self.ttr_var)
+        ttr_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=150, variable=self.ttr_var)
         ttr_slider.grid(row=4, column=3)
         
         # Quarantine Label
@@ -167,7 +167,7 @@ class Disease_Simulator:
         
         # Quarantine Delay Slider
         self.quard_var = tk.IntVar()
-        quard_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=28, variable=self.quard_var)
+        quard_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=30, variable=self.quard_var)
         quard_slider.grid(row=5, column=3)
         
         # Central Location Label
@@ -365,6 +365,12 @@ class Disease_Simulator:
         if self.cl_var.get():
             for store in self.store_locations[self.cities_var.get()]:
                 self.canvas.create_rectangle(store[0]-5, store[1]-5, store[0]+5, store[1]+5, fill="orange", width=1.5)
+                
+        # Draw Quarantine Boundaries
+        self.quar_canvas.create_line(4, 4, 100, 4, width=4)
+        self.quar_canvas.create_line(4, 4, 4, 100, width=4)
+        self.quar_canvas.create_line(100, 0, 100, 100, width=4)
+        self.quar_canvas.create_line(0, 100, 100, 100, width=4)
         
         # Draw Each Person
         for person in self.society.people[1:]:
