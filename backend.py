@@ -2,7 +2,7 @@ import random
 import numpy as np
 
 class Society:
-    def __init__(self, pop, n_reg, pirt, tf, pi, pac, ttr, incp, dr, psd, quar, qd, cl, vf):
+    def __init__(self, pop, n_reg, pirt, tf, pi, pac, ttr, incp, dr, psd, quar, qd, cl, vf, sdd):
         """
         The society class is the top level backend class which the frontend 
         interfaces with directly. It is responsible for mananging all the 
@@ -63,6 +63,9 @@ class Society:
         vf : int
             The percentage of the time, on any given non-traveling day, that a
             person will decide to go shopping at the central location.
+            
+        sdd : int
+            The percentage of people sick before enforcing social distancing.
 
         Returns
         -------
@@ -72,6 +75,7 @@ class Society:
         # Store Society Specific Information
         self.n_reg = n_reg
         self.pirt = pirt/100
+        self.sdd = sdd/100
         
         # Person Object List - This is where all the Person Objects live 
         # (Start with None so id == list index as id starts at 1)
@@ -85,6 +89,7 @@ class Society:
         self.dead = []
         self.traveling = []
         self.shopping = []
+        self.will_social_distance = sorted(random.sample(list(range(1, pop + 1)), int((psd/100)*pop)))
         
         # Region Definitions
         self.regions = {1: (((0, 1000), (0, 500)),), 2: (((0, 500), (0, 500)), ((500, 1000), (0, 500))),
@@ -198,6 +203,18 @@ class Society:
         else:
             for person in range(1, len(self.people)):
                 setattr(self.people[person], "restricted_from_traveling", False)
+                
+        # Enforce Social Distancing If Enough People are Infected
+        if (len(self.sympt) + len(self.asympt))/len(self.people) > self.sdd:
+            for person in self.will_social_distance:
+                # Travelers/Shoppers Social Distance After their Trip
+                if not self.people[person].traveling and not self.people[person].shopping:
+                    setattr(self.people[person], "social_distancing", True)
+                
+        # Relax Social Distancing if Few Enough People are Infected
+        else:
+            for person in self.will_social_distance:
+                setattr(self.people[person], "social_distancing", False)
         
 
 class Person:
@@ -331,7 +348,7 @@ class Person:
                 self.recovered = True
                 
         # Decide if Person should Start a Trip
-        if not self.traveling and not self.restricted_from_traveling:
+        if not self.traveling and not self.restricted_from_traveling and not self.social_distancing:
             dice_roll = random.random()
             
             # Start a Trip to a New Region
@@ -340,7 +357,7 @@ class Person:
                 self.just_started_traveling = True
                 
         # Decide if Person should start a Trip to the Central Location
-        if not self.traveling and not self.shopping:
+        if not self.traveling and not self.shopping and not self.social_distancing:
             dice_roll = random.random()
             
             # Start a Trip to the Store
@@ -385,8 +402,8 @@ class Person:
             
         # Social Distancing
         elif self.social_distancing:
-            self.xs = np.concatenate(self.xs, np.array([self.x]))
-            self.ys = np.concatenate(self.ys, np.array([self.y]))
+            self.xs = np.append(self.xs[:self.time], self.x)
+            self.ys = np.append(self.ys[:self.time], self.y)
         
         # Create new position values if necessary
         elif self.time > len(self.xs) - 1:

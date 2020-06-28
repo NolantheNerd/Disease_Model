@@ -193,7 +193,7 @@ class Disease_Simulator:
         
         # Social Distancing Delay Slider
         self.sdd_var = tk.IntVar()
-        sdd_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=1, variable=self.sdd_var)
+        sdd_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.sdd_var)
         sdd_slider.grid(row=7, column=1)
         
         # SD Proportion Label
@@ -219,7 +219,8 @@ class Disease_Simulator:
                                self.ttr_var.get(), self.inc_var.get(),
                                self.dr_var.get(), self.sdp_var.get(),
                                self.quar_var.get(), self.quard_var.get(),
-                               self.cl_var.get(), self.clf_var.get())
+                               self.cl_var.get(), self.clf_var.get(),
+                               self.sdd_var.get())
         
         # Run Update Loop
         self.run_simulation = True
