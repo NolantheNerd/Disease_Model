@@ -324,8 +324,20 @@ class Person:
         # Remove People in Quarantine from Simulation Area
         if self.just_quarantined:
             self.x, self.y = random.uniform(4, 90), random.uniform(4, 90)
-        elif self.quarantined:
-            pass
+        elif self.quarantined and self.recovered:
+            self.quarantined = False
+            
+            # Return the Recovered Person to their previous region
+            self.x = random.uniform(self.reg_bd[0][0] + 10, self.reg_bd[0][1] - 10)
+            self.y = random.uniform(self.reg_bd[1][0] + 10, self.reg_bd[1][1] - 10)
+            new_xs, new_ys = self.calc_pos(num=random.choice(range(500, 2500)))
+            self.xs = np.concatenate([self.xs[:self.time], new_xs])
+            self.ys = np.concatenate([self.ys[:self.time], new_ys])
+            
+        elif self.quarantined and not self.recovered:
+            # Add Current Position to the Positions Lists to Keep Positions in Sync with Time
+            self.xs = np.concatenate([self.xs[:self.time], np.array([self.x])])
+            self.ys = np.concatenate([self.ys[:self.time], np.array([self.y])])
         else:
             self.update_position(start_trip, travel_to, new_reg, new_bds)
         self.update_state(encountering)
