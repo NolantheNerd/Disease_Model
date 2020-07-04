@@ -530,6 +530,7 @@ class Plotter:
         self.ax.set_title("Infection Curves")
         self.ax.set_ylim(0, ylim)
         self.ax.set_xticklabels([])
+        self.ax.set_xticks([])
         
         # Prepare to Collect and Store the Demographic Data
         self.time = 0
@@ -574,6 +575,7 @@ class Plotter:
         self.ax.set_ylabel("Number of People")
         self.ax.set_title("Infection Curves")
         self.ax.set_xticklabels([])
+        self.ax.set_xticks([])
         
         # Increment the x value
         self.time += 1
