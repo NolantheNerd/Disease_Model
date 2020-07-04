@@ -347,16 +347,9 @@ class Disease_Simulator:
         region_label.grid(row=7, column=1)
         
         ### Plot Frame ###
+        # Don't Create Plotting Object Until Start to Get Accurate Pop Num
         self.plot_frame = tk.Frame(self.mainframe)
         self.plot_frame.grid(row=1, column=0, rowspan=10)
-        
-        # Create Plotting Object
-        self.plotter = Plotter((4, 4), self.pop_var.get())
-        
-        # Create Plotting Element
-        self.plot_widget = FigureCanvasTkAgg(self.plotter.fig, master=self.plot_frame)
-        self.plot_widget.draw()
-        self.plot_widget.get_tk_widget().grid(row=0, column=0, rowspan=10)
         
         self.root.mainloop()
         
@@ -379,6 +372,15 @@ class Disease_Simulator:
         self.can_travel = self.society.travel_permitted
         self.must_social_distance = self.society.social_distancing
         
+        # Setup Graphing Plot
+        # Create Plotting Object
+        self.plotter = Plotter((4, 4), self.pop_var.get())
+        
+        # Create Plotting Element
+        self.plot_widget = FigureCanvasTkAgg(self.plotter.fig, master=self.plot_frame)
+        self.plot_widget.draw()
+        self.plot_widget.get_tk_widget().grid(row=0, column=0, rowspan=10)
+        
         # Run Update Loop
         self.run_simulation = True
         while self.run_simulation:
@@ -392,6 +394,9 @@ class Disease_Simulator:
         
         # Enable Start Button
         self.go_button.config(state=tk.ACTIVE)
+        
+        # Reset Graphing Element
+        self.plot_widget.get_tk_widget().destroy()
         
         # Reset Canvases
         self.canvas.destroy()
