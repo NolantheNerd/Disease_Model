@@ -502,17 +502,36 @@ class Disease_Simulator:
         
         
 class Plotter:
-    def __init__(self, figsize, ylim=500, res=100):
-        self.res = res
+    """
+    The Plotter class is responsible for creating and maintaining a graphical
+    representation of how the infection is spreading through the society. It
+    makes extensive use of the matplotlib library for python.
+    """
+    
+    def __init__(self, figsize, ylim=500):
+        """
+        The constructor creates the plotting environment including the figure
+        and axis objects and prepares to collect all of the disease data.
         
+        Parameters:
+        -----------
+        figsize : tuple
+            A tuple with two elements representing the width and height of the
+            figure object to be created.
+            
+        ylim : int
+            The total number of memebers of the society.
+        """
+        # Create and Configure the Figure and Axis Objects
         self.fig = plt.figure(figsize=figsize, dpi=100, tight_layout=True)
         self.ax = self.fig.add_subplot(111)
-        self.ax.set_xlabel("Hours")
+        self.ax.set_xlabel("Time")
         self.ax.set_ylabel("Number of People")
         self.ax.set_title("Infection Curves")
         self.ax.set_ylim(0, ylim)
         self.ax.set_xticklabels([])
         
+        # Prepare to Collect and Store the Demographic Data
         self.time = 0
         
         self.times = [0]
@@ -525,29 +544,57 @@ class Plotter:
         self.ax.plot([],[])
         
     def update_plot(self, h, a, s, r, d):
+        """
+        The update_plot method is used to change the plot to reflect the current
+        state of the society. This means passing the new demographic data to the 
+        method and getting an updated version of the axis object back.
+        
+        Parameters:
+        -----------
+        h : int
+            The new number of healthy people at the current time.
+            
+        a : int
+            The new number of asymptomatic people at the current time.
+            
+        s : int
+            The new number of symptomatic people at the current time.
+            
+        r : int
+            The new number of recovered people at the current time.
+            
+        d : int
+            The new number of dead people at the current time.
+        """
+        # Remove Old Plots from the Axis
         self.ax.cla()
         
-        self.ax.set_xlabel("Hours")
+        # Set the Labels, Axes and Title
+        self.ax.set_xlabel("Time")
         self.ax.set_ylabel("Number of People")
         self.ax.set_title("Infection Curves")
         self.ax.set_xticklabels([])
         
+        # Increment the x value
         self.time += 1
         self.times.append(self.time)
         
+        # Plot the Entire Set of x values
         self.ax.set_xlim((0, self.times[-1]))
         
+        # Save all the Demographic Data
         self.healthy.append(h)
         self.asympt.append(a)
         self.sympt.append(s)
         self.recovered.append(r)
         self.dead.append(d)
         
-        self.ax.plot(self.times, self.healthy, c="#0000FF", zorder=5, linewidth=4)
-        self.ax.plot(self.times, self.asympt, c="#FFFF00", zorder=4, linewidth=4)
-        self.ax.plot(self.times, self.sympt, c="#FF0000", zorder=3, linewidth=4)
-        self.ax.plot(self.times, self.recovered, c="#00FF00", zorder=2, linewidth=4)
-        self.ax.plot(self.times, self.dead, c="#000000", zorder=1, linewidth=4)
+        # Plot the Demographic Data
+        self.ax.plot(self.times, self.healthy, c="#0000FF", zorder=5, linewidth=2, label="Healthy")
+        self.ax.plot(self.times, self.asympt, c="#FFFF00", zorder=4, linewidth=2, label="Asymptomatic")
+        self.ax.plot(self.times, self.sympt, c="#FF0000", zorder=3, linewidth=2, label="Symptomatic")
+        self.ax.plot(self.times, self.recovered, c="#00FF00", zorder=2, linewidth=2, label="Recovered")
+        self.ax.plot(self.times, self.dead, c="#000000", zorder=1, linewidth=2, label="Dead")
 
         
 if __name__ == "__main__":
