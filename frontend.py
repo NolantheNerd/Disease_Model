@@ -5,7 +5,18 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from backend import Society
 
 class Disease_Simulator:
+    """
+    The Disease_Simulator class contains the main tkinter frontend for the disease
+    simulator. Instantiating this class will run the simulator.
+    """
     def __init__(self):
+        """
+        The Disease_Simulator constructor is used to setup the frontend environment
+        with all of the tkinter elements which are necessary to view, control,
+        and interact with the simulation. This includes all of the switches, 
+        checkboxes, and sliders as well as the canvases in which the simulation
+        can be seen.
+        """
         # Define Region Boundaries
         self.region_lines = {1: (()), 2: ((500, 0, 500, 500),), 3: ((333, 0, 333, 500), (667, 0, 667, 500)),
                         4: ((500, 0, 500, 500), (0, 250, 1000, 250)), 
@@ -354,6 +365,12 @@ class Disease_Simulator:
         
         
     def start_simulation(self):
+        """
+        The start_simulation method is called when the user clicks the "Start 
+        Simulation" button. It creates the necessary backend object, Society
+        and instantiates the plotting frontend element. It also loops through
+        both the frontend and backend update functions.
+        """
         # Disable Start Button
         self.go_button.config(state=tk.DISABLED)
         
@@ -391,6 +408,12 @@ class Disease_Simulator:
             
             
     def reset_simulation(self):
+        """
+        The reset_simulation method is used to clean up the frontend from one
+        particular run of the simulator and prepare to start a brand new 
+        simulation. This involves remaking the simulation canvases, and removing
+        the graphing element, and stopping the simulation update loop.
+        """
         # Break Update Loop
         self.run_simulation = False
         
@@ -421,6 +444,10 @@ class Disease_Simulator:
         
         
     def update_simulation(self):
+        """
+        The update_simulation method is used to update the frontend of the 
+        simulation. It clears and redraws the canvas and it updates the plot.
+        """
         # Clear Existing Items from Canvas
         self.canvas.delete("all")
         self.quar_canvas.delete("all")
@@ -498,6 +525,10 @@ class Disease_Simulator:
         
             
     def close(self):
+        """
+        The close method is called to terminate the simulation frontend and the
+        update loop.
+        """
         # Kill Update Loop
         self.run_simulation = False
         self.root.destroy()
