@@ -385,6 +385,9 @@ class Disease_Simulator:
         while self.run_simulation:
             self.update_simulation()
             self.society.update_society()
+            if not self.society.ongoing:
+                self.update_simulation()
+                break
             
             
     def reset_simulation(self):
