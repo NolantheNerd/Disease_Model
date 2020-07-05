@@ -2,6 +2,11 @@ import random
 import numpy as np
 
 class Society:
+    """
+    The Society class is the higher level backend class which manages the group
+    of people in the simulation as a whole. It is also designed to be an interface
+    between the backend objects and the frontend.
+    """
     def __init__(self, pop, n_reg, pirt, tf, pi, pac, ttr, incp, dr, psd, quar, qd, cl, vf, sdd):
         """
         The society class is the top level backend class which the frontend 
@@ -246,6 +251,65 @@ class Society:
 
 class Person:
     def __init__(self, id_, reg, reg_bd, pi, incp, pac, ttr, dr, tf, vf, start_sick=False):
+        """
+        The Person constructor handles the backend states of each individual 
+        person within the simulation. It tracks and updates both their position
+        and their state.
+
+        Parameters
+        ----------
+        id_ : int
+            The id number to assign to the person so that they can be more easily
+            referenced later.
+            
+        reg : int
+            The region within the society to place this person initially.
+            
+        n_reg : int
+            The number of distinct regions in which the person can exist.
+            Can be between 1 and 9.
+            
+        reg_bd : tuple
+            The x and y limits of the region in which the person starts. In the
+            format: ((x_left, x_right), (y_left, y_right))
+            
+        pi : float/int
+            The probability of infection. If a healthy person is encountering a
+            sick person, this represents the probability that they will also 
+            become infected.
+            
+        incp : int
+            The incubation period in days (time before asymptomatic cases show 
+            symptoms).
+            
+        pac : float/int
+            Stands for Percent of infections which are Asymptomatic Cases. 
+            Represents the percent of cases which remain asymptomatic the whole
+            time.
+            
+        ttr : int
+            The Time Taken to Recover in days. 
+            
+        dr : float/int
+            The death rate as a percent.
+            
+        tf : float
+            The percentage of the time, on any given non-traveling day, that a
+            person will decide to travel.
+            
+        vf : int
+            The percentage of the time, on any given non-traveling day, that a
+            person will decide to go shopping at the central location.
+            
+        start_sick : bool
+            Whether or not to instantiate the person as asymptomatic, used to
+            kick off the infection.
+
+        Returns
+        -------
+        Person Object
+
+        """
         # Capture Instantiation Inputs
         self.id = id_
         self.reg = reg
@@ -345,8 +409,10 @@ class Person:
             # Add Current Position to the Positions Lists to Keep Positions in Sync with Time
             self.xs = np.concatenate([self.xs[:self.time], np.array([self.x])])
             self.ys = np.concatenate([self.ys[:self.time], np.array([self.y])])
+            
         else:
             self.update_position(start_trip, travel_to, new_reg, new_bds)
+            
         self.update_state(encountering)
         
         # Reset Just Quarantined Variable
@@ -404,7 +470,7 @@ class Person:
                 self.recovered = True
                 
         # Decide if Person should Start a Trip
-        if not self.traveling and not self.restricted_from_traveling and not self.social_distancing:
+        if not self.traveling and not self.restricted_from_traveling and not self.social_distancing and not self.quarantined:
             dice_roll = random.random()
             
             # Start a Trip to a New Region
@@ -413,7 +479,7 @@ class Person:
                 self.just_started_traveling = True
                 
         # Decide if Person should start a Trip to the Central Location
-        if not self.traveling and not self.shopping and not self.social_distancing:
+        if not self.traveling and not self.shopping and not self.social_distancing and not self.quarantined:
             dice_roll = random.random()
             
             # Start a Trip to the Store
@@ -477,28 +543,73 @@ class Person:
     
     
     def calc_pos(self, t=0.1, num=1000, size=10):
+        """
+        The calc_pos method is used to precalculate the positions of the person
+        into the future. It takes into consideration the boundaries of the region
+        and adjusts both the position and velocity appropriately.
+        
+        Parameters:
+        -----------
+        t : float
+            A time constant representing the time step to use between steps.
+            
+        num : int
+            The number of positions into the future to calculate.
+            
+        size : float
+            The width/height of the person. Used to determine when the person
+            has come into contact with a region boundary.
+        """
+        # Save the initial random x and y positions
         init_x, init_y = float(self.x), float(self.y)
+        
+        # Calculate Future x values
         xs = (t*np.arange(num))*(self.vx*np.ones(num))+self.x*np.ones(num)
         xb_check = np.nonzero(np.logical_or(xs <= self.reg_bd[0][0], xs >= self.reg_bd[0][1]-size))
+        
+        # Reflect the x values back everytime they come into contact with a region boundary
         while len(xb_check[0]) > 0:
             self.x = xs[xb_check[0][0]-1]
             self.vx *= -1
             xs[xb_check[0][0]:] = (t*np.arange(num-xb_check[0][0]))*(self.vx*np.ones(num-xb_check[0][0]))+self.x*np.ones(num-xb_check[0][0])
             xb_check = np.nonzero(np.logical_or(xs <= self.reg_bd[0][0], xs >= self.reg_bd[0][1]-size))
         
+        # Calculate Future y values
         ys = (t*np.arange(num))*(self.vy*np.ones(num))+self.y*np.ones(num)
         yb_check = np.nonzero(np.logical_or(ys <= self.reg_bd[1][0], ys >= self.reg_bd[1][1]-size))
+        
+        # Reflect the y values back everytime they come into contact with a region boundary
         while len(yb_check[0]) > 0:
             self.y = ys[yb_check[0][0]-1]
             self.vy *= -1
             ys[yb_check[0][0]:] = (t*np.arange(num-yb_check[0][0]))*(self.vy*np.ones(num-yb_check[0][0]))+self.y*np.ones(num-yb_check[0][0])
             yb_check = np.nonzero(np.logical_or(ys <= self.reg_bd[1][0], ys >= self.reg_bd[1][1]-size))
         
+        # Reestablish the initial x and y values for the person
         self.x, self.y = init_x, init_y
         return xs, ys
     
     
     def travel_path(self, x, y, new_x, new_y):
+        """
+        The travel_path method is used to calculate the positions along a straight
+        line path between two points. This is used when traveling between regions
+        or when shopping at a central location.
+        
+        Parameters:
+        -----------
+        x : float
+            Starting x value.
+            
+        y : float
+            Starting y value.
+            
+        new_x : float
+            The resultant x value.
+            
+        new_y : float
+            The resultant y value.
+        """
         steps = max((int(np.ceil(np.sqrt((new_x-x)**2+(new_y-y)**2))/10), 3))
         return np.linspace(x, new_x, steps), np.linspace(y, new_y, steps)
         
