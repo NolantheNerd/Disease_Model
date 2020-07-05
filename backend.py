@@ -72,6 +72,9 @@ class Society:
         Society Object
 
         """
+        # Monitor the State of the Society
+        self.ongoing = True
+        
         # Store Society Specific Information
         self.n_reg = n_reg
         self.pirt = pirt/100
@@ -235,6 +238,10 @@ class Society:
                 if self.people[person].sympt and self.people[person].day1 == self.qd:
                     setattr(self.people[person], "quarantined", True)
                     setattr(self.people[person], "just_quarantined", True)
+                    
+        # Check if there is Still Pandemic Spreading Potential
+        if len(self.asympt) == 0 and len(self.sympt) == 0:
+            self.ongoing = False
         
 
 class Person:
