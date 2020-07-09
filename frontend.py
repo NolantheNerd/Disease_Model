@@ -90,9 +90,9 @@ class Disease_Simulator:
         
         # Population Slider
         self.pop_var = tk.IntVar()
-        pop_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=100, to=1000, variable=self.pop_var, length=370)
-        pop_slider.grid(row=0, column=1, columnspan=3)
-        pop_slider.set(500)
+        self.pop_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=100, to=1000, variable=self.pop_var, length=370)
+        self.pop_slider.grid(row=0, column=1, columnspan=3)
+        self.pop_slider.set(500)
         
         # Cities Label
         cities_label = tk.Label(self.tog_frame, text="# of Regions:")
@@ -100,9 +100,9 @@ class Disease_Simulator:
         
         # Cities Slider
         self.cities_var = tk.IntVar()
-        cities_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=9, variable=self.cities_var)
-        cities_slider.grid(row=1, column=1)
-        cities_slider.set(5)
+        self.cities_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=9, variable=self.cities_var)
+        self.cities_slider.grid(row=1, column=1)
+        self.cities_slider.set(5)
         
         # Death Rate Label
         dr_label = tk.Label(self.tog_frame, text="Death Rate (%):")
@@ -110,9 +110,9 @@ class Disease_Simulator:
         
         # Death Rate Slider
         self.dr_var = tk.DoubleVar()
-        dr_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, resolution=0.5, variable=self.dr_var)
-        dr_slider.grid(row=1, column=3)
-        dr_slider.set(1.5)
+        self.dr_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, resolution=0.5, variable=self.dr_var)
+        self.dr_slider.grid(row=1, column=3)
+        self.dr_slider.set(1.5)
         
         # Restrict Travel Label
         rt_label = tk.Label(self.tog_frame, text="% Infected Before Restricting Travel:")
@@ -120,9 +120,9 @@ class Disease_Simulator:
         
         # Restrict Travel Slider
         self.rt_var = tk.IntVar()
-        rt_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.rt_var)
-        rt_slider.grid(row=2, column=1)
-        rt_slider.set(10)
+        self.rt_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.rt_var)
+        self.rt_slider.grid(row=2, column=1)
+        self.rt_slider.set(10)
         
         # Travel Frequency Label
         tf_label = tk.Label(self.tog_frame, text="Travel Frequency")
@@ -130,9 +130,9 @@ class Disease_Simulator:
         
         # Travel Frequency Slider
         self.tf_var = tk.DoubleVar()
-        tf_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=1, resolution=0.01, variable=self.tf_var)
-        tf_slider.grid(row=2, column=3)
-        tf_slider.set(0.1)
+        self.tf_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=1, resolution=0.01, variable=self.tf_var)
+        self.tf_slider.grid(row=2, column=3)
+        self.tf_slider.set(0.1)
         
         # Infectability Label
         ift_label = tk.Label(self.tog_frame, text="Probability of Infection:")
@@ -140,9 +140,9 @@ class Disease_Simulator:
         
         # Infectability Slider
         self.ift_var = tk.IntVar()
-        ift_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=100, variable=self.ift_var)
-        ift_slider.grid(row=3, column=1)
-        ift_slider.set(15)
+        self.ift_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=100, variable=self.ift_var)
+        self.ift_slider.grid(row=3, column=1)
+        self.ift_slider.set(15)
         
         # Percent Asymptomatic Label
         pas_label = tk.Label(self.tog_frame, text="% of Asymptomatic Cases:")
@@ -150,9 +150,9 @@ class Disease_Simulator:
         
         # Percent Asymptomatic Slider
         self.pas_var = tk.IntVar()
-        pas_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.pas_var)
-        pas_slider.grid(row=3, column=3)
-        pas_slider.set(50)
+        self.pas_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.pas_var)
+        self.pas_slider.grid(row=3, column=3)
+        self.pas_slider.set(50)
         
         # Incubation Period Label
         inc_label = tk.Label(self.tog_frame, text="Incubation Period:")
@@ -160,9 +160,9 @@ class Disease_Simulator:
         
         # Incubation Period Slider
         self.inc_var = tk.IntVar()
-        inc_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=140, variable=self.inc_var)
-        inc_slider.grid(row=4, column=1)
-        inc_slider.set(14)
+        self.inc_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=140, variable=self.inc_var)
+        self.inc_slider.grid(row=4, column=1)
+        self.inc_slider.set(14)
         
         # Average Time to Recover Label
         ttr_label = tk.Label(self.tog_frame, text="Time Taken to Recover:")
@@ -170,9 +170,9 @@ class Disease_Simulator:
         
         # Average Time to Recover Slider
         self.ttr_var = tk.IntVar()
-        ttr_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=150, variable=self.ttr_var)
-        ttr_slider.grid(row=4, column=3)
-        ttr_slider.set(48)
+        self.ttr_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=1, to=150, variable=self.ttr_var)
+        self.ttr_slider.grid(row=4, column=3)
+        self.ttr_slider.set(48)
         
         # Quarantine Label
         quar_label = tk.Label(self.tog_frame, text="Quarantine the Sick:")
@@ -180,9 +180,9 @@ class Disease_Simulator:
         
         # Quarantine Checkbox
         self.quar_var = tk.BooleanVar()
-        quar_check = tk.Checkbutton(self.tog_frame, variable=self.quar_var)
-        quar_check.grid(row=5, column=1)
-        quar_check.select()
+        self.quar_check = tk.Checkbutton(self.tog_frame, variable=self.quar_var)
+        self.quar_check.grid(row=5, column=1)
+        self.quar_check.select()
         
         # Quarantine Delay Label
         quard_label = tk.Label(self.tog_frame, text="Quarantine Delay:")
@@ -190,9 +190,9 @@ class Disease_Simulator:
         
         # Quarantine Delay Slider
         self.quard_var = tk.IntVar()
-        quard_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=30, variable=self.quard_var)
-        quard_slider.grid(row=5, column=3)
-        quard_slider.set(7)
+        self.quard_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=30, variable=self.quard_var)
+        self.quard_slider.grid(row=5, column=3)
+        self.quard_slider.set(7)
         
         # Central Location Label
         cl_label = tk.Label(self.tog_frame, text="Central Location:")
@@ -200,9 +200,9 @@ class Disease_Simulator:
         
         # Central Location Checkbox
         self.cl_var = tk.BooleanVar()
-        cl_check = tk.Checkbutton(self.tog_frame, variable=self.cl_var)
-        cl_check.grid(row=6, column=1)
-        cl_check.select()
+        self.cl_check = tk.Checkbutton(self.tog_frame, variable=self.cl_var)
+        self.cl_check.grid(row=6, column=1)
+        self.cl_check.select()
         
         # Central Location Frequency Label
         clf_label = tk.Label(self.tog_frame, text="Visitation Frequency:")
@@ -210,9 +210,9 @@ class Disease_Simulator:
         
         # Central Location Frequency Slider
         self.clf_var = tk.DoubleVar()
-        clf_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=1, resolution=0.01, variable=self.clf_var)
-        clf_slider.grid(row=6, column=3)
-        clf_slider.set(0.15)
+        self.clf_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=1, resolution=0.01, variable=self.clf_var)
+        self.clf_slider.grid(row=6, column=3)
+        self.clf_slider.set(0.15)
         
         # Social Distancing Delay Label
         sdd_label = tk.Label(self.tog_frame, text="% Infected before Social Distancing")
@@ -220,9 +220,9 @@ class Disease_Simulator:
         
         # Social Distancing Delay Slider
         self.sdd_var = tk.IntVar()
-        sdd_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.sdd_var)
-        sdd_slider.grid(row=7, column=1)
-        sdd_slider.set(15)
+        self.sdd_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.sdd_var)
+        self.sdd_slider.grid(row=7, column=1)
+        self.sdd_slider.set(15)
         
         # SD Proportion Label
         sdp_label = tk.Label(self.tog_frame, text="% of People Social Distancing")
@@ -230,9 +230,9 @@ class Disease_Simulator:
         
         # SD Proportion Slider
         self.sdp_var = tk.IntVar()
-        sdp_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.sdp_var)
-        sdp_slider.grid(row=7, column=3)
-        sdp_slider.set(90)
+        self.sdp_slider = tk.Scale(self.tog_frame, orient=tk.HORIZONTAL, from_=0, to=100, variable=self.sdp_var)
+        self.sdp_slider.grid(row=7, column=3)
+        self.sdp_slider.set(90)
         
         # Title Font
         title_font = tkFont.Font(family="Helvetica", size=16)
@@ -374,6 +374,23 @@ class Disease_Simulator:
         # Disable Start Button
         self.go_button.config(state=tk.DISABLED)
         
+        # Disable Sliders
+        self.pop_slider.config(state=tk.DISABLED)
+        self.cities_slider.config(state=tk.DISABLED)
+        self.dr_slider.config(state=tk.DISABLED)
+        self.rt_slider.config(state=tk.DISABLED)
+        self.tf_slider.config(state=tk.DISABLED)
+        self.ift_slider.config(state=tk.DISABLED)
+        self.pas_slider.config(state=tk.DISABLED)
+        self.inc_slider.config(state=tk.DISABLED)
+        self.ttr_slider.config(state=tk.DISABLED)
+        self.quar_check.config(state=tk.DISABLED)
+        self.quard_slider.config(state=tk.DISABLED)
+        self.cl_check.config(state=tk.DISABLED)
+        self.clf_slider.config(state=tk.DISABLED)
+        self.sdd_slider.config(state=tk.DISABLED)
+        self.sdp_slider.config(state=tk.DISABLED)
+        
         # Create Society Object
         self.society = Society(self.pop_var.get(), self.cities_var.get(), 
                                self.rt_var.get(), self.tf_var.get(),
@@ -419,6 +436,23 @@ class Disease_Simulator:
         
         # Enable Start Button
         self.go_button.config(state=tk.ACTIVE)
+        
+        # Enable Sliders
+        self.pop_slider.config(state=tk.NORMAL)
+        self.cities_slider.config(state=tk.NORMAL)
+        self.dr_slider.config(state=tk.NORMAL)
+        self.rt_slider.config(state=tk.NORMAL)
+        self.tf_slider.config(state=tk.NORMAL)
+        self.ift_slider.config(state=tk.NORMAL)
+        self.pas_slider.config(state=tk.NORMAL)
+        self.inc_slider.config(state=tk.NORMAL)
+        self.ttr_slider.config(state=tk.NORMAL)
+        self.quar_check.config(state=tk.NORMAL)
+        self.quard_slider.config(state=tk.NORMAL)
+        self.cl_check.config(state=tk.NORMAL)
+        self.clf_slider.config(state=tk.NORMAL)
+        self.sdd_slider.config(state=tk.NORMAL)
+        self.sdp_slider.config(state=tk.NORMAL)
         
         # Reset Graphing Element
         self.plot_widget.get_tk_widget().destroy()
